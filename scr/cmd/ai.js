@@ -1,81 +1,65 @@
-const axios = require("axios");
-async function aic(q, uid) {
-  try {
-    const r = (
-      await axios.get(`${global.deku.ENDPOINT}/gpt4?prompt=${q}&uid=${uid}`)
-    ).data;
-    return r.gpt4;
-  } catch (e) {
-    return e.message;
-  }
-}
+const axios = require('axios');
+
 module.exports = {
   config: {
-    name: "ai",
-    description: "Talk to GPT4 (conversational)",
-    prefix: false,
-    usage: "[ask]",
+    name: 'ai',
+    description: 'Interact with the Gemini AI',
+    usage: 'ai [custom prompt] (attach image or not)',
+    cooldown: 3,
     accessableby: 0,
-    cooldown: 5,
+    category: 'Utility',
+    prefix: true,
+    author: 'Churchill',
+    version: '1.0.0',
   },
-  startReply: async function ({ api, replier }) {
-    await api.sendMessage(
-      "[ 𝙲𝙾𝙽𝚅𝙴𝚁𝚂𝙰𝚃𝙸𝙾𝙽𝙰𝙻 𝙰𝙸 ]\n\n" +
-        "⏳ Searching for answer..." +
-        '\n\n[ 𝚃𝚢𝚙𝚎 "𝚌𝚕𝚎𝚊𝚛" 𝚝𝚘 𝚛𝚎𝚜𝚎𝚝 𝚝𝚑𝚎 𝚌𝚘𝚗𝚟𝚎𝚛𝚜𝚊𝚝𝚒𝚘𝚗 𝚠𝚒𝚝𝚑 𝙰𝙸 ]',
-      replier.received.tid,
-      async (err, info) => {
-        if (err) return;
-        const r = await aic(replier.data.msg, replier.received.uid);
-        api.editMessage(
-          "[ 𝙲𝙾𝙽𝚅𝙴𝚁𝚂𝙰𝚃𝙸𝙾𝙽𝙰𝙻 𝙰𝙸 ]\n\n" +
-            r +
-            "\n\n[ 𝚁𝙴𝙿𝙻𝚈 𝚃𝙾 𝚃𝙷𝙸𝚂 𝙼𝙴𝚂𝚂𝙰𝙶𝙴 𝚃𝙾 𝙲𝙾𝙽𝚃𝙸𝙽𝚄𝙴 𝚃𝙷𝙴 𝙲𝙾𝙽𝚅𝙴𝚁𝚂𝙰𝚃𝙸𝙾𝙽 𝚆𝙸𝚃𝙷 𝙰𝙸 ]",
-          info.messageID,
-        );
-        global.handle.replies[info.messageID] = {
-          cmdname: module.exports.config.name,
-          this_mid: info.messageID,
-          this_tid: info.threadID,
-          tid: replier.received.tid,
-          mid: replier.received.mid,
-        };
-      }, // end of  async (err, info)
-      replier.received.mid,
-    );
-  },
-  start: async function ({ text, api, reply, react, event }) {
-    let p = text.join(" "),
-      uid = event.senderID;
-    if (!p) return reply("Please enter a prompt.");
-    react("✨");
-    try {
-      await api.sendMessage(
-        "[ 𝙲𝙾𝙽𝚅𝙴𝚁𝚂𝙰𝚃𝙸𝙾𝙽𝙰𝙻 𝙰𝙸 ]\n\n" +
-          "⏳ Searching for answer..." +
-          "\n\n[ 𝚁𝙴𝙿𝙻𝚈 𝚃𝙾 𝚃𝙷𝙸𝚂 𝙼𝙴𝚂𝚂𝙰𝙶𝙴 𝚃𝙾 𝙲𝙾𝙽𝚃𝙸𝙽𝚄𝙴 𝚃𝙷𝙴 𝙲𝙾𝙽𝚅𝙴𝚁𝚂𝙰𝚃𝙸𝙾𝙽 𝚆𝙸𝚃𝙷 𝙰𝙸 ]",
-        event.threadID,
-        async (err, info) => {
-          if (err) return;
-          const r = await aic(p, uid);
-          api.editMessage(
-            "[ 𝙲𝙾𝙽𝚅𝙴𝚁𝚂𝙰𝚃𝙸𝙾𝙽𝙰𝙻 𝙰𝙸 ]\n\n" +
-              r +
-              "\n\n[ 𝚁𝙴𝙿𝙻𝚈 𝚃𝙾 𝚃𝙷𝙸𝚂 𝙼𝙴𝚂𝚂𝙰𝙶𝙴 𝚃𝙾 𝙲𝙾𝙽𝚃𝙸𝙽𝚄𝙴 𝚃𝙷𝙴 𝙲𝙾𝙽𝚅𝙴𝚁𝚂𝙰𝚃𝙸𝙾𝙽 𝚆𝙸𝚃𝙷 𝙰𝙸 ]",
-            info.messageID,
-          );
-          global.handle.replies[info.messageID] = {
-            cmdname: module.exports.config.name,
-            tid: event.threadID,
-            mid: event.messageID,
-            this_mid: info.messageID,
-            this_tid: info.threadID,
-          };
-        },
-        event.messageID,
-      );
-    } catch (g) {
-      return reply(g.message);
+  start: async function ({ api, event, text, react, reply }) {
+    const attachment = event.messageReply?.attachments[0] || event.attachments[0];
+    const customPrompt = text.join(' ');
+
+    if (!customPrompt && !attachment) {
+      return reply('Please provide a prompt or attach a photo for the AI to analyze.');
     }
-  },
+
+    let apiUrl = `${global.deku.ENDPOINT}/gemini?`;
+
+    if (attachment && attachment.type === 'photo') {
+      const prompt = customPrompt || 'answer that need to answer';
+      const imageUrl = attachment.url;
+      apiUrl += `prompt=${encodeURIComponent(prompt)}&url=${encodeURIComponent(imageUrl)}`;
+    } else {
+      apiUrl += `prompt=${encodeURIComponent(customPrompt)}`;
+    }
+
+    await react('⏳'); 
+
+    const initialMessage = await new Promise((resolve, reject) => {
+      api.sendMessage({
+        body: '🔍 Processing your request...',
+        mentions: [{ tag: event.senderID, id: event.senderID }],
+      }, event.threadID, (err, info) => {
+        if (err) return reject(err);
+        resolve(info);
+      });
+    });
+
+    try {
+      const response = await axios.get(apiUrl);
+      const aiResponse = response.data.gemini;
+
+      const formattedResponse = `
+✨ 𝙲𝚑𝚒𝚕𝚕𝚒 𝚁𝚎𝚜𝚙𝚘𝚗𝚜𝚎
+━━━━━━━━━━━━━━━━━━
+${aiResponse.trim()}
+━━━━━━━━━━━━━━━━━━
+-𝙱𝚒𝚗𝚐 𝙲𝚑𝚞𝚛𝚌𝚑𝚒𝚕𝚕
+      `;
+
+      await react('✅'); // React with a checkmark emoji
+      await api.editMessage(formattedResponse.trim(), initialMessage.messageID);
+
+    } catch (error) {
+      console.error('Error:', error);
+      await api.editMessage('An error occurred, please try using the "ai2" command.', initialMessage.messageID);
+    }
+  }
 };
