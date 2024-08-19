@@ -5,9 +5,9 @@ module.exports.start = async function ({ text, reply }) {
   const minutes = Math.floor((time % (60 * 60)) / 60);
   const seconds = Math.floor(time % 60);
   const id = text[0] || "4";
-  const gh = "ysauhsoj";
-  const insta = "joshg";
-  const fb = "Joshua Sy";
+  const gh = "jade";
+  const insta = "basta jade";
+  const fb = "jade pogi";
   const bname = global.deku.BOTNAME;
   const res = (
     await axios.get(
