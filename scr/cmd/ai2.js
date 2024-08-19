@@ -1,59 +1,57 @@
-const axios = require('axios')
-async function liner(prompt) {
-  const url = 'https://linerva.getliner.com/platform/copilot/v3/answer';
-  const headers = {
-    'accept': '*/*',
-    'accept-language': 'en-US,en;q=0.9',
-    'content-type': 'application/json',
-    'Referer': 'https://getliner.com/',
-  };
-  const data = {
-    spaceId: 18097491,
-    "threadId": "53007419",
-    "userMessageId": 59420219,
-    "userId": 8933542,
-    query: prompt,
-    agentId: '@liner-pro',
-    platform: 'web',
-    regenerate: false
-  };
-
-  try {
-    const response = await axios.post(url, data, { headers });
-     { response: response.data };
-    const respon = response.data.split('\n');
-    const res = JSON.parse(respon[respon.length - 2]);
-    return res.answer;
-  } catch (error) {
-    return error.message;
-  }
-}
+const axios = require('axios');
 
 module.exports = {
+    config: {
+        name: 'ai2',
+        description: 'Interact with the Hercai AI',
+        usage: 'ai2 [question]',
+        cooldown: 3,
+        accessableby: 0, 
+        category: 'AI',
+        prefix: false,
+    },
+    start: async function({ api, event, text, reply }) {
+        const question = text.join(' ');
 
-  config: {
+        if (!question) {
+            return reply('Please provide a question, for example: ai2 what is love?');
+        }
 
-    name: "ai2",
+        const initialMessage = await new Promise((resolve, reject) => {
+            api.sendMessage({
+                body: '🤖 Ai answering...',
+                mentions: [{ tag: event.senderID, id: event.senderID }],
+            }, event.threadID, (err, info) => {
+                if (err) return reject(err);
+                resolve(info);
+            }, event.messageID);
+        });
 
-    accessableby: 0,
+        try {
+            const response = await axios.get('https://hercai.onrender.com/v3/hercai', {
+                params: { question }
+            });
+            const aiResponse = response.data;
+            const responseString = aiResponse.reply ? aiResponse.reply : 'No result found.';
 
-    description: "Talk to Linerva AI",
+            const formattedResponse = `
+🤖 Hercai AI
+━━━━━━━━━━━━━━━━━━
+${responseString}
+━━━━━━━━━━━━━━━━━━
+-𝚆𝙰𝙶 𝙼𝙾 𝙲𝙾𝙿𝚈 𝙻𝙰𝙷𝙰𝚃 𝙽𝙶 𝚂𝙰𝙶𝙾𝚃 𝙺𝚄𝙽𝙶 𝙰𝚈𝙰𝚆 𝙼𝙾𝙽𝙶 𝙼𝙰𝙷𝙰𝙻𝙰𝚃𝙰
+━━━━━━━━━━━━━━━━━━
+If you want to donate for the server, just PM or Add the developer: [https://www.facebook.com/Churchill.Dev4100]
+            `;
 
-    usage: "ask",
+            await api.editMessage(formattedResponse.trim(), initialMessage.messageID);
 
-    prefix: false,
-
-    credits: "Deku"
-
-  },
-
-  start: async function ({ text, reply }) {
- let p = text.join(' ')
-  if (!p) return reply('Missing input!');
-  liner(p).then(re => {
-     return reply(re)
-      })
-
-   }
-
-}
+        } catch (error) {
+            console.error('Error:', error);
+            await api.editMessage('An error occurred, please try again later.', initialMessage.messageID);
+        }
+    },
+    auto: async function({ api, event, text, reply }) {
+        // Optional: Add auto-response logic here if needed
+    }
+};
