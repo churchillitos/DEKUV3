@@ -32,7 +32,7 @@ module.exports = {
         output += `━━━━━━━━━━━━━━━\n`;
         output += `Total commands: ${commands.length}\n`;
         output += `━━━━━━━━━━━━━━━━━━\n\n`;
-        output += `𝙰𝚄𝚃𝙾𝙻𝚄𝙱𝙾𝚃 𝙾𝚆𝙽𝙴𝚁: https://www.facebook.com/Churchill.Dev4100`;
+        output += `𝙰𝚄𝚃𝙾𝙻𝚄𝙱𝙾𝚃 𝙾𝚆𝙽𝙴𝚁: https://www.facebook.com/jddmpy`;
 
         return reply({ body: output });
       }
