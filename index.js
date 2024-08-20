@@ -368,10 +368,10 @@ X(
             }
             if (t == "prefix")
               // for contact
-              /*return api.shareContact(
+              return api.shareContact(
                 "Prefix: " + p,
                 api.getCurrentUserID(),
-                event.threadID,*/
+                event.threadID,
 
               // for message
               return reply("Prefix: " + p);
