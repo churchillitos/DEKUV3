@@ -20,6 +20,6 @@
     "ADMINONLY": true,
     "DETECTTYPING": false,
     "AUTOCOMMENT": false,
-    "AUTOPOST": true
+    "AUTOPOST": true,
   }
 }
