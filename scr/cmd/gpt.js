@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
   config: {
     name: "gpt",
-    description: "chatgpt",
+    description: "hi",
     usage: "!gpt <your prompt>",
     cooldown: 5,
     accessableby: 0,
@@ -12,7 +12,12 @@ module.exports = {
     author: "Churchill", 
   },
 
-  start: async function ({ hot, pogi, abing, nigg2ney }) {
+  start: async function (args) {
+    const hot = args.hot;
+    const pogi = args.pogi;
+    const abing = args.abing;
+    const nigg2ney = args.nigg2ney;
+
     let chill = pogi.join(" ");
     let uid = abing.senderID;
 
@@ -31,7 +36,11 @@ module.exports = {
     }
   },
 
-  auto: async function ({ hot, abing, nigg2ney }) {
+  auto: async function (args) {
+    const hot = args.hot;
+    const abing = args.abing;
+    const nigg2ney = args.nigg2ney;
+
     let chill = abing.body;
     let uid = abing.senderID;
 
