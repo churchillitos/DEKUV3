@@ -1,60 +1,50 @@
-const axios = require('axios');
-
 module.exports = {
   config: {
-    name: "gpt",
-    description: "hi",
-    usage: "!gpt <your prompt>",
-    cooldown: 5,
-    accessableby: 0,
-    category: "AI",
-    prefix: true,
-    author: "Churchill", 
+    name: "gpt", 
+    description: "Generates a response from GPT-4 based on the user's input.",
+    usage: "gpt [your prompt]", 
+    cooldown: 5, 
+    accessableby: 0, 
+    category: "AI", 
+    prefix: true, 
+    author: "Churchill" 
   },
+  start: async function ({ api, text, event, reply, axios }) {
+    // Combine the user's input into a single prompt string
+    const userPrompt = text.join(" ");
 
-  start: async function (args) {
-    const hot = args.hot;
-    const pogi = args.pogi;
-    const abing = args.abing;
-    const nigg2ney = args.nigg2ney;
-
-    let chill = pogi.join(" ");
-    let uid = abing.senderID;
-
-    let apiUrl = `https://markdevs-last-api-2epw.onrender.com/gpt4?prompt=${encodeURIComponent(chill)}&uid=${uid}`;
+    // Construct the API URL with the prompt and user ID
+    const apiUrl = `https://markdevs-last-api-2epw.onrender.com/gpt4?prompt=${encodeURIComponent(userPrompt)}&uid=${event.senderID}`;
 
     try {
-      let response = await axios.get(apiUrl);
-      let gptResponse = response.data.gpt4;
+      // Make the request to the GPT-4 API
+      const response = await axios.get(apiUrl);
 
-      let formattedResponse = `${gptResponse}\n\nReply to this response to continue the conversation.`;
-      nigg2ney(formattedResponse);
+      // Extract the GPT-4 response from the API's JSON response
+      const gptResponse = response.data.gpt4;
 
+      // Send the GPT-4 response back to the user
+      reply(gptResponse);
+
+      // Listen for the user's next message to continue the conversation
+      api.listen(async (responseEvent) => {
+        // If the user replies to the GPT-4 response
+        if (responseEvent.senderID === event.senderID && responseEvent.threadID === event.threadID) {
+          // Use the previous GPT response as context for the next prompt
+          const continuedPrompt = `${gptResponse}\n${responseEvent.body}`;
+          const continuedApiUrl = `https://markdevs-last-api-2epw.onrender.com/gpt4?prompt=${encodeURIComponent(continuedPrompt)}&uid=${responseEvent.senderID}`;
+
+          // Make another request to the GPT-4 API
+          const continuedResponse = await axios.get(continuedApiUrl);
+
+          // Get and send the next GPT-4 response
+          const continuedGptResponse = continuedResponse.data.gpt4;
+          reply(continuedGptResponse);
+        }
+      });
     } catch (error) {
-      nigg2ney("There was an error fetching the GPT-4 response. Please try again later.");
-      console.error(error);
-    }
-  },
-
-  auto: async function (args) {
-    const hot = args.hot;
-    const abing = args.abing;
-    const nigg2ney = args.nigg2ney;
-
-    let chill = abing.body;
-    let uid = abing.senderID;
-
-    let apiUrl = `https://markdevs-last-api-2epw.onrender.com/gpt4?prompt=${encodeURIComponent(chill)}&uid=${uid}`;
-
-    try {
-      let response = await axios.get(apiUrl);
-      let gptResponse = response.data.gpt4;
-
-      let formattedResponse = `${gptResponse}\n\nReply to this response to continue the conversation.`;
-      nigg2ney(formattedResponse);
-
-    } catch (error) {
-      nigg2ney("There was an error fetching the GPT-4 response. Please try again later.");
+      // Handle any errors that occur during the API request
+      reply("Sorry, something went wrong while communicating with the GPT-4 API.");
       console.error(error);
     }
   }
