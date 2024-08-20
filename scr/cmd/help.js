@@ -58,11 +58,11 @@ module.exports = {
 
       output += `━━━━━━━━━━━━━━━\n`;
       output += `━━𝙲𝙾𝙼𝙼𝙰𝙽𝙳 𝙿𝙰𝙶𝙴 : <${page}/${totalPages}>━━\n`;
-      output += `━━CHILLI 𝖠𝖨 𝖢𝖧𝖠𝖳𝖡𝖮𝖳━━\n`;
+      output += `━━JADE 𝖠𝖨 𝖢𝖧𝖠𝖳𝖡𝖮𝖳━━\n`;
       output += `Total commands: ${commands.length}\n`;
       output += `Type "help all" to see all commands.\n`;
       output += `━━━━━━━━━━━━━━━━━━\n\n`;
-      output += `𝙾𝚆𝙽𝙴𝚁: https://www.facebook.com/Churchill.Dev4100`;
+      output += `𝙾𝚆𝙽𝙴𝚁: https://www.facebook.com/jddmpy`;
 
       return reply({ body: output });
     } catch (e) {
