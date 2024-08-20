@@ -8,7 +8,7 @@ module.exports = {
     cooldown: 3,
     accessableby: 0,
     category: 'Utility',
-    prefix: true,
+    prefix: false,
     author: 'Churchill',
     version: '1.0.0',
   },
