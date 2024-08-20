@@ -8,7 +8,7 @@ module.exports = {
     cooldown: 3,
     accessableby: 0,
     category: 'Utility',
-    prefix: true,
+    prefix: false,
     author: 'Churchill',
     version: '1.0.0',
   },
@@ -54,7 +54,7 @@ ${aiResponse.trim()}
 -𝙱𝚒𝚗𝚐 𝙲𝚑𝚞𝚛𝚌𝚑𝚒𝚕𝚕
       `;
 
-      await react('✅'); // React with a checkmark emoji
+      await react('✅'); 
       await api.editMessage(formattedResponse.trim(), initialMessage.messageID);
 
     } catch (error) {
