@@ -6,16 +6,27 @@ module.exports = {
   config: {
     name: "avatarv1",
     description: "Generate avatar v1",
-    usage: "avatarv1",
+    usage: "avatarv1 <id> | <bgname> | <signature> | <color>",
     cooldown: 5,
     accessableby: 0,
     category: "image",
     prefix: false,
     author: "Churchill"
   },
-  start: async function({ api, event, reply, react }) {
+  start: async function({ api, event, reply, react, args }) {
     try {
-      const apiUrl = `${global.deku.ENDPOINT}/canvas/avatar?id=4&bgname=Joshua&signature=Joshua%20Sy&color=black`;
+      const userInput = args.join(" ").split("|").map(part => part.trim());
+
+      const id = userInput[0];
+      const bgname = userInput[1];
+      const signature = userInput[2];
+      const color = userInput[3];
+
+      if (!id || !bgname || !signature || !color) {
+        return reply("Please provide all required parameters in the format: avatarv1 id 1 to 800 | bgname | signature | color");
+      }
+
+      const apiUrl = `${global.deku.ENDPOINT}/canvas/avatar?id=${encodeURIComponent(id)}&bgname=${encodeURIComponent(bgname)}&signature=${encodeURIComponent(signature)}&color=${encodeURIComponent(color)}`;
 
       await react('⏳');
       reply("Generating avatar, please wait...");
