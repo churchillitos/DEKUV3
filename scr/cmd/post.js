@@ -4,7 +4,7 @@ module.exports = {
     description: "Create a new post in acc bot.",
     usage: "1 [audience] | [message content]",
     cooldown: 5,
-    accessableby: 2, // 0 = everyone, 1 = admins, 2 = bot owner/admin
+    accessableby: 1, // 0 = everyone, 1 = admins, 2 = bot owner/admin
     category: "Tiện ích",
     prefix: true
   },
