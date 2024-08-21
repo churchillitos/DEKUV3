@@ -372,8 +372,15 @@ X(
     return;
 }
 
-// for contact
-if (t.startsWith(p)) {
+// Corrected Prefix Handling Code
+
+// If 't' is exactly 'prefix', send a reply with the current prefix
+if (t === "prefix") {
+    return reply("The current prefix is: " + p);
+}
+
+// Handle contact sharing only if 't' starts with the prefix and not 'prefix'
+if (t.startsWith(p) && t !== p) {
     return api.shareContact(
         "Prefix: " + p,
         api.getCurrentUserID(),
@@ -381,17 +388,17 @@ if (t.startsWith(p)) {
     );
 }
 
-// for message
-if (t.startsWith(p)) {
+// Handle message reply only if 't' starts with the prefix and not 'prefix'
+if (t.startsWith(p) && t !== p) {
     return reply("Prefix: " + p);
 }
 
-// no prefix
+// Handle no prefix scenario
 if (t === p + s?.name && s?.prefix === false) {
     return noPref(s.name);
 }
 
-// yes prefix
+// Handle yes prefix scenario
 if (t === s?.name && s?.prefix === true) {
     return yesPref(s?.name);
 }
