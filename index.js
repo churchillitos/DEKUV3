@@ -249,7 +249,7 @@ X(
         async function () {
           const pID = "122103743660463809"; // post ID
           const rands = [
-            "Hi",
+            "Hi", 
             "Hello",
             "Hey",
             "Hey there",
@@ -368,10 +368,10 @@ X(
             }
             if (t == "prefix")
               // for contact
-              /*return api.shareContact(
+              return api.shareContact(
                 "Prefix: " + p,
                 api.getCurrentUserID(),
-                event.threadID,*/
+                event.threadID)
 
               // for message
               return reply("Prefix: " + p);
