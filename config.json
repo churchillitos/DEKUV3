@@ -9,11 +9,10 @@
     "autoMarkRead": false,
     "userAgent": "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36 OPR/84.0.4316.21"
   },
-  "TAG": ["100087212564100"],
   "PREFIX": "!",
   "ADMINBOT": ["100087212564100"],
   "VIP": ["100087212564100"],
-  "BOTNAME": "𝙲𝚑𝚒𝚕𝚕𝚒 𝙱𝚘𝚝",
+  "BOTNAME": "chilli bot",
   "SETTING": {
     "AUTORESEND": true,
     "AUTOREACT": true,
