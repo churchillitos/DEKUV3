@@ -375,12 +375,12 @@ X(
 
               // for message
               return reply("Prefix: " + p);
-            if (t == p)
+          /*  if (t == p)
               return api.shareContact(
                 "Type " + p + "help to view available commands.",
                 api.getCurrentUserID(),
                 event.threadID,
-              );
+              );*/
 
             //no prefix
             if (t == p + s?.name && s?.prefix == false) {
