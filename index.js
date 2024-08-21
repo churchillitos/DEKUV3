@@ -112,9 +112,9 @@ X(
     appState,
   },
   async function (err, api) {
-    logs("╰┈➤ THIS BOT WAS MADE BY CHILLI");
-    logs("╰┈➤ CONTACT: https://www.facebook.com/Churchill.Dev4100");
-    logs("╰┈➤ ADMIN: CHURCHILL AG");
+    logs("╰┈➤ THIS BOT WAS MADE BY DEKU");
+    logs("╰┈➤ CONTACT: https://facebook.com/joshg101");
+    logs("╰┈➤ ADMIN: ADMIN NAME HERE");
     function getGUID() {
       var sectionLength = Date.now();
       var id = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -249,7 +249,7 @@ X(
         async function () {
           const pID = "122103743660463809"; // post ID
           const rands = [
-            "Hi", 
+            "Hi",
             "Hello",
             "Hey",
             "Hey there",
@@ -366,43 +366,30 @@ X(
             if (script.auto) {
               script.auto(obj);
             }
-            if (t == "prefix")
-            if (t === "prefix") {
-    // Ensure 't' doesn't match 'prefix' to avoid unwanted responses
-    return;
-}
+            if (t == "prefix") return 
+             api.shareContact(
+                "Prefix: " + p,
+                api.getCurrentUserID(),
+                event.threadID)
 
-// Corrected Prefix Handling Code
+              // for message
+             return reply("Prefix: " + p);
+          /*  if (t == p)
+              return api.shareContact(
+                "Type " + p + "help to view available commands.",
+                api.getCurrentUserID(),
+                event.threadID,*/
+              );
 
-// If 't' is exactly 'prefix', send a reply with the current prefix
-if (t === "prefix") {
-    return reply("The current prefix is: " + p);
-}
+            //no prefix
+            if (t == p + s?.name && s?.prefix == false) {
+              return noPref(s.name);
+            }
 
-// Handle contact sharing only if 't' starts with the prefix and not 'prefix'
-if (t.startsWith(p) && t !== p) {
-    return api.shareContact(
-        "Prefix: " + p,
-        api.getCurrentUserID(),
-        event.threadID
-    );
-}
-
-// Handle message reply only if 't' starts with the prefix and not 'prefix'
-if (t.startsWith(p) && t !== p) {
-    return reply("Prefix: " + p);
-}
-
-// Handle no prefix scenario
-if (t === p + s?.name && s?.prefix === false) {
-    return noPref(s.name);
-}
-
-// Handle yes prefix scenario
-if (t === s?.name && s?.prefix === true) {
-    return yesPref(s?.name);
-}
-
+            //yes prefix
+            if (t == s?.name && s?.prefix == true) {
+              return yesPref(s?.name);
+            }
 
             //permission
             if (t == p + s?.name || t == s?.name) {
