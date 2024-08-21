@@ -112,9 +112,9 @@ X(
     appState,
   },
   async function (err, api) {
-    logs("╰┈➤ THIS BOT WAS MADE BY DEKU");
-    logs("╰┈➤ CONTACT: https://facebook.com/joshg101");
-    logs("╰┈➤ ADMIN: ADMIN NAME HERE");
+    logs("╰┈➤ THIS BOT WAS MADE BY CHILLI");
+    logs("╰┈➤ CONTACT: https://www.facebook.com/Churchill.Dev4100");
+    logs("╰┈➤ ADMIN: CHURCHILL ABING");
     function getGUID() {
       var sectionLength = Date.now();
       var id = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -366,19 +366,20 @@ X(
             if (script.auto) {
               script.auto(obj);
             }
-            if (t == "prefix") return 
-             api.shareContact(
+            if (t == "prefix")
+              // for contact
+              /*return api.shareContact(
                 "Prefix: " + p,
                 api.getCurrentUserID(),
-                event.threadID)
+                event.threadID,*/
 
               // for message
-             return reply("Prefix: " + p);
-          /*  if (t == p)
+              return reply("Prefix: " + p);
+            if (t == p)
               return api.shareContact(
                 "Type " + p + "help to view available commands.",
                 api.getCurrentUserID(),
-                event.threadID,*/
+                event.threadID,
               );
 
             //no prefix
