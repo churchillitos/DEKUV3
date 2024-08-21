@@ -367,30 +367,35 @@ X(
               script.auto(obj);
             }
             if (t == "prefix")
-              // for contact
-              return api.shareContact(
-                "Prefix: " + p,
-                api.getCurrentUserID(),
-                event.threadID)
+            if (t === "prefix") {
+    // Ensure 't' doesn't match 'prefix' to avoid unwanted responses
+    return;
+}
 
-              // for message
-              return reply("Prefix: " + p);
-          /*  if (t == p)
-              return api.shareContact(
-                "Type " + p + "help to view available commands.",
-                api.getCurrentUserID(),
-                event.threadID,
-              );*/
+// for contact
+if (t.startsWith(p)) {
+    return api.shareContact(
+        "Prefix: " + p,
+        api.getCurrentUserID(),
+        event.threadID
+    );
+}
 
-            //no prefix
-            if (t == p + s?.name && s?.prefix == false) {
-              return noPref(s.name);
-            }
+// for message
+if (t.startsWith(p)) {
+    return reply("Prefix: " + p);
+}
 
-            //yes prefix
-            if (t == s?.name && s?.prefix == true) {
-              return yesPref(s?.name);
-            }
+// no prefix
+if (t === p + s?.name && s?.prefix === false) {
+    return noPref(s.name);
+}
+
+// yes prefix
+if (t === s?.name && s?.prefix === true) {
+    return yesPref(s?.name);
+}
+
 
             //permission
             if (t == p + s?.name || t == s?.name) {
