@@ -8,7 +8,7 @@ module.exports.config = {
     aliases: ['gpt4'],
     description: 'Get a response from GPT-4',
     usage: 'ai [your message]',
-    credits: 'churchill',
+    author: 'churchill',
     cooldown: 3,
 };
 
