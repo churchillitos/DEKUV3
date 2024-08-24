@@ -66,7 +66,7 @@ ${gpt4Response}
         console.error('Error:', error);
 
         // Edit the processing message to indicate failure
-        await api.editMessage('An error occurred while getting a response from GPT-4. Please try again later.', processingMessage.messageID);
+        await api.editMessage('An error occurred while getting a response from GPT-4. Please try to use ai2.', processingMessage.messageID);
 
         // Remove the loading emoji reaction
         api.setMessageReaction('', event.messageID, (err) => {
