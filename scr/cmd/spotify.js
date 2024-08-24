@@ -16,7 +16,7 @@ async function download(q) {
 }
 module.exports = {
   config: {
-    name: "soundc",
+    name: "spotify",
     refix: false,
     accessibleby: 0,
     description: "Search and Download souncloud music.",
