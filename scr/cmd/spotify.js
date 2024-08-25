@@ -5,51 +5,45 @@ const path = require('path');
 module.exports = {
   config: {
     name: "spotify",
-    description: "Search and play a Spotify track",
-    usage: "spotify <track name>",
+    description: "Search for a song on Spotify and send it as an attachment.",
+    usage: "spotify <song name>",
     cooldown: 5,
     accessableby: 0,
-    category: "Music",
+    category: "music",
     prefix: true,
   },
-  start: async function({ api, text, react, event, reply }) {
+  start: async function ({ api, text, react, event, reply }) {
     try {
-      const query = text.join(' ');
-      if (!query) {
-        return reply("Please provide a track name to search for.");
+      const query = text.join("_"); // Join the text arguments to form the search query
+      const response = await axios.get(`https://chorawrs-sheshh.vercel.app/spt?search=${query}`);
+
+      if (response.data) {
+        const { name, image, music } = response.data;
+
+        // React to the user's message to indicate processing
+        await react("🎵");
+
+        // Fetch the song data (audio file)
+        const musicResponse = await axios.get(music, { responseType: 'arraybuffer' });
+        const musicPath = path.join(__dirname, `${name.track}.mp3`);
+
+        // Save the music file locally
+        fs.writeFileSync(musicPath, musicResponse.data);
+
+        // Send the music file as an attachment
+        api.sendMessage({
+          body: `🎧 Now Playing: ${name.track} by ${name.artist}`,
+          attachment: fs.createReadStream(musicPath)
+        }, event.threadID, () => {
+          // Clean up by deleting the local file after sending
+          fs.unlinkSync(musicPath);
+        });
+      } else {
+        reply("Couldn't find the song. Please try another search term.");
       }
-
-      react("🔍");
-      reply("Searching for the track on Spotify...");
-
-      const response = await axios.get(`${global.deku.ENDPOINT}/search/spotify?q=${encodeURIComponent(query)}`);
-      
-      if (!response.data.status || response.data.result.length === 0) {
-        return reply("No tracks found for your query.");
-      }
-
-      const track = response.data.result[0];
-
-      react("🎧");
-      reply(`Playing "${track.title}" by ${track.artist}. Please wait...`);
-
-      const voicePath = path.join(__dirname, '/cache/spotify_voice.mp3');
-
-      const trackResponse = await axios.get(track.direct_url, { responseType: 'arraybuffer' });
-
-      fs.writeFileSync(voicePath, Buffer.from(trackResponse.data, 'binary'));
-
-      api.sendMessage({
-        body: `Now playing: ${track.title} by ${track.artist}`,
-        attachment: fs.createReadStream(voicePath)
-      }, event.threadID, () => {
-        fs.unlinkSync(voicePath);
-      });
-
     } catch (error) {
-      console.error('Error:', error);
-      reply("An error occurred while processing your request.");
+      console.error(error);
+      reply("An error occurred while processing your request. Please try again later.");
     }
-  },
-  auto: async function({ event, reply }) {}
+  }
 };
