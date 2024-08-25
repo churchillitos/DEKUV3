@@ -1,115 +1,66 @@
-//search: /api/scsearch?q=
-// download: /api/scdl?q=
-// endpoint global.deku.ENDPOINT
-const axios = require("axios");
-const fs = require("fs");
-const path = __dirname + "/cache/soundc.mp3";
-async function search(q) {
-  const r = (await axios.get(`${global.deku.ENDPOINT}/api/scsearch?q=${q}`))
-    .data;
-  return r.result;
-}
-let results;
-async function download(q) {
-  const r = (await axios.get(`${global.deku.ENDPOINT}/api/scdl?q=${q}`)).data;
-  return r.result;
-}
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+
 module.exports = {
   config: {
     name: "spotify",
-    refix: false,
-    accessibleby: 0,
-    description: "Search and Download souncloud music.",
-    credits: "Deku",
+    description: "Search and send Spotify music previews.",
+    usage: "spotify <song_name>",
+    cooldown: 5,
+    accessableby: 0,
     category: "music",
-    usage: "[reply by number]",
-    cooldown: 0
+    prefix: true
   },
-  start: async function ({ text, api, reply, react, event }) {
+
+  start: async function ({ api, event, text, reply }) {
     try {
-      let searchs = text.join(" ");
-      if (!searchs) return reply("Please enter a search query.");
-      react("🔎");
-      const result = await search(searchs);
-      if (!result) return reply("No results found.");
-      results = result;
-      // console.log(results);
-      let msg = `[ 𝚂𝙾𝚄𝙽𝙳𝙲𝙻𝙾𝚄𝙳 ]\n\n🔎 Search results for "${searchs}":\n\n`;
-      for (let i = 0; i < result.length; i++) {
-        msg += `${i + 1}. 🎼 ${result[i].title}\n🔗Link: ${result[i].link}\n\n`;
+      // Join the text input as the search query
+      const searchQuery = text.join(" ");
+      
+      if (!searchQuery) {
+        return reply("Please provide a song name to search for.");
       }
-      msg += `\nReply with the number of the song you want to download.\n\nNOTE: if it didn't send music, please reply to this message again`;
-      //console.log(msg)
-      await api.sendMessage(
-        msg,
-        event.threadID,
-        async function (err, info) {
-          if (err) return;
-          global.handle.replies[info.messageID] = {
-            cmdname: module.exports.config.name,
-            tid: event.threadID,
-            mid: event.messageID,
-            uid: event.senderID,
-            this_mid: info.messageID,
-            this_tid: info.threadID,
-            step: "download",
-          };
-        },
-        event.messageID,
-      );
-    } catch (e) {
-      return reply(e.message);
+
+      // Fetch data from the Spotify API using the provided search query
+      const response = await axios.get(`${global.deku.ENDPOINT}/search/spotify?q=${encodeURIComponent(searchQuery)}`);
+      
+      if (!response.data.status || response.data.result.length === 0) {
+        return reply("No results found for your query. Please try a different search.");
+      }
+
+      // Select the first result from the response
+      const song = response.data.result[0];
+      const previewUrl = song.direct_url;
+
+      if (!previewUrl) {
+        return reply("No audio preview available for this track.");
+      }
+
+      // Define the path to save the preview audio temporarily
+      const audioPath = path.resolve(__dirname, 'temp', `spotify_preview_${song.id}.mp3`);
+
+      // Download the preview audio
+      const audioResponse = await axios.get(previewUrl, { responseType: 'stream' });
+      audioResponse.data.pipe(fs.createWriteStream(audioPath));
+
+      // Wait for the file to finish downloading
+      await new Promise((resolve) => {
+        audioResponse.data.on('end', resolve);
+      });
+
+      // Send the audio as a voice attachment
+      api.sendMessage({
+        body: `Now playing: ${song.title} by ${song.artist}`,
+        attachment: fs.createReadStream(audioPath)
+      }, event.threadID);
+
+      // Clean up the downloaded audio file
+      fs.unlinkSync(audioPath);
+
+    } catch (error) {
+      console.error(error);
+      reply("An error occurred while fetching the song. Please try again later.");
     }
-  },
-  startReply: async function ({ api, replier }) {
-    try {
-      if (!results) {
-        return api.sendMessage(
-          "No search results available.",
-          replier.received.tid,
-          replier.received.mid,
-        );
-      }
-
-      if (replier.received.step === "download") {
-        let index = replier.data.msg;
-        const num = parseInt(index);
-
-        if (isNaN(num)) {
-          return api.sendMessage(
-            "Please provide a valid number",
-            replier.received.tid,
-            replier.received.mid,
-          );
-        }
-
-        if (num < 1 || num > results.length) {
-          return api.sendMessage(
-            "Invalid number",
-            replier.received.tid,
-            replier.received.mid,
-          );
-        }
-
-        const result = results[num - 1];
-        const link = result.link;
-        const dl = await download(link);
-        //const info = dl.title;
-        const links = dl.link;
-
-        const res = (
-          await axios.get(encodeURI(links), { responseType: "arraybuffer" })
-        ).data;
-        fs.writeFileSync(path, Buffer.from(res, "utf-8"));
-
-        api.sendMessage(
-          { attachment: fs.createReadStream(path) },
-          replier.received.tid,
-          replier.received.mid,
-        );
-      }
-    } catch (e) {
-      api.sendMessage(e.message, replier.received.tid, replier.received.mid);
-    }
-  },
+  }
 };
