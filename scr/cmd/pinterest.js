@@ -1,5 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
 const path = require('path');
 
 module.exports = {
@@ -12,7 +11,7 @@ module.exports = {
     category: "media",
     prefix: true
   },
-  start: async function ({ api, text, react, event, reply, User }) {
+  start: async function ({ api, text, react, event, reply }) {
     try {
       const chilli = text.join(" ");
       const pogi = chilli.split(" - ");
@@ -36,29 +35,26 @@ module.exports = {
 
       for (let i = 0; i < pogiResult.length; i++) {
         const pogiUrl = pogiResult[i];
-        const pogiPath = path.resolve(__dirname, 'temp', `pinterest_${i}.jpg`);
+        
+        // Fetch image and store in a buffer
+        const imageResponse = await axios.get(pogiUrl, { responseType: 'arraybuffer' });
+        const imageBuffer = Buffer.from(imageResponse.data, 'binary');
 
-        const pangit = await axios.get(pogiUrl, { responseType: 'stream' });
-        pangit.data.pipe(fs.createWriteStream(pogiPath));
-
-        await new Promise((resolve) => {
-          pangit.data.on('end', resolve);
+        // Push the buffer directly to the attachments array
+        attachments.push({
+          name: `pinterest_${i}.jpg`,
+          attachment: imageBuffer
         });
-
-        attachments.push(fs.createReadStream(pogiPath));
       }
 
+      // Send the images as attachments to Discord
       api.sendMessage({
         body: `Here are your ${mantika} images for "${lubo}":`,
         attachment: attachments
       }, event.threadID);
 
-      for (let i = 0; i < attachments.length; i++) {
-        fs.unlinkSync(attachments[i].path);
-      }
-
     } catch (error) {
-      console.error(error);
+      console.error('Error:', error.message); // Improved error logging
       reply("An error occurred while fetching the images. Please try again later.");
     }
   }
