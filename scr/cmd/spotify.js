@@ -5,57 +5,51 @@ const path = require('path');
 module.exports = {
   config: {
     name: "spotify",
-    description: "Search for a song on Spotify and send an audio preview",
-    usage: "spotify <query>",
+    description: "Search and play a Spotify track",
+    usage: "spotify <track name>",
     cooldown: 5,
     accessableby: 0,
-    category: "music",
-    prefix: true
+    category: "Music",
+    prefix: true,
   },
-  start: async function({ event, api, args, reply }) {
-    if (args.length === 0) {
-      return reply("Please provide a search query for Spotify.");
-    }
-
-    const query = args.join(" ");
-    const apiKey = "syugg";
-    const endpoint = `http://linda.hidencloud.com:25636/spotify/search?q=${encodeURIComponent(query)}&apikey=${apiKey}`;
-
+  start: async function({ api, text, react, event, reply }) {
     try {
-      const response = await axios.get(endpoint);
-
-      if (response.data && response.data.data && response.data.data.length > 0) {
-        const song = response.data.data[0];
-        
-        const previewUrl = song.preview;
-        const previewPath = path.join(__dirname, 'spotify_preview.mp3');
-
-        if (!previewUrl) {
-          return reply("Sorry, no preview available for this song.");
-        }
-
-        // Download the audio preview
-        const audioResponse = await axios.get(previewUrl, {
-          responseType: 'arraybuffer'
-        });
-
-        fs.writeFileSync(previewPath, audioResponse.data);
-
-        const msg = {
-          body: `Here is a preview of ${song.title}\nPopularity: ${song.popularity}\nListen on Spotify: ${song.url}`,
-          attachment: fs.createReadStream(previewPath)
-        };
-
-        // Send the audio preview as an attachment
-        api.sendMessage(msg, event.threadID, () => {
-          fs.unlinkSync(previewPath); // Clean up the file
-        });
-      } else {
-        reply("No results found for your search.");
+      const query = text.join(' ');
+      if (!query) {
+        return reply("Please provide a track name to search for.");
       }
+
+      react("🔍");
+      reply("Searching for the track on Spotify...");
+
+      const response = await axios.get(`${global.deku.ENDPOINT}/search/spotify?q=${encodeURIComponent(query)}`);
+      
+      if (!response.data.status || response.data.result.length === 0) {
+        return reply("No tracks found for your query.");
+      }
+
+      const track = response.data.result[0];
+
+      react("🎧");
+      reply(`Playing "${track.title}" by ${track.artist}. Please wait...`);
+
+      const voicePath = path.join(__dirname, '/cache/spotify_voice.mp3');
+
+      const trackResponse = await axios.get(track.direct_url, { responseType: 'arraybuffer' });
+
+      fs.writeFileSync(voicePath, Buffer.from(trackResponse.data, 'binary'));
+
+      api.sendMessage({
+        body: `Now playing: ${track.title} by ${track.artist}`,
+        attachment: fs.createReadStream(voicePath)
+      }, event.threadID, () => {
+        fs.unlinkSync(voicePath);
+      });
+
     } catch (error) {
-      console.error("Error fetching data from Spotify API: ", error);
-      reply("Sorry, something went wrong while searching for the song.");
+      console.error('Error:', error);
+      reply("An error occurred while processing your request.");
     }
-  }
+  },
+  auto: async function({ event, reply }) {}
 };
