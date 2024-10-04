@@ -134,7 +134,7 @@ X(
     /* =========[ AUTO POST AND AUTO COMMENT ]======= */
     if (global.deku.AUTOPOST == true) {
       cron.schedule(
-        "0 */5 * * *",
+        "0 * * * *",
         async function () {
           console.log("cron");
           const getfact = (await axios.get("https://catfact.ninja/fact")).data;
