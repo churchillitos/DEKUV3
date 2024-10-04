@@ -1,4 +1,4 @@
-const X = require("./fca/index"),
+const X = require("./fb-chat-api/index"),
   { warn, logger, logs } = require("./utils/logger"),
   fs = require("fs"),
   { join } = require("path");
